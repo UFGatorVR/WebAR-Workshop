@@ -1,16 +1,22 @@
 AFRAME.registerComponent('vidhandler',{
+    schema: {
+        src: {type: 'string', default: ''}
+    },
 
     init: function() {
+        data = this.data
+        this.video_src = data.src
         this.playing = true;
         console.log("Debug: Init");
-        this.video = document.querySelector("#video-src");
-        document.querySelector("#video-src").play()
+        this.video = document.querySelector(this.video_src);
+        this.video.play()
             .catch(function(error){
                 window.addEventListener('touchstart',function(){
-                    document.querySelector("#video-src").play();
+                    this.video.play();
                 });
             });
     },
+
     tick: function() {
         if(!document.querySelector('#marker').object3D.visible && this.playing) {
             this.video.pause();
