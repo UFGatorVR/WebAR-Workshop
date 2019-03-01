@@ -1,14 +1,26 @@
+/*
+  *  *  *
+    A component for handling the autoplay issue on mobile devices for <a-video> elements in aframe-ar 
+  *  *  *
+*/
 AFRAME.registerComponent('vidhandler',{
     schema: {
-        src: {type: 'string', default: ''}
+        src: {type: 'string', default: ''},
+        markerId: {type: 'string', default: ''}
     },
 
     init: function() {
-        data = this.data
-        this.video_src = data.src
+        // Get parameters passed in from DOM instance
+        data = this.data;
+
+        // Localize the parameters or pull from the DOM
+        this.markerId = data.markerId || "#"+this.el.parentEl.id;
+        this.videoSrc = data.src || this.el.attributes.src.nodeValue;
+
         this.playing = true;
-        console.log("Debug: Init");
-        this.video = document.querySelector(this.video_src);
+
+        // Try to play the video, catch (mobile) and wait for touchstart event
+        this.video = document.querySelector(this.videoSrc);
         this.video.play()
             .catch(function(error){
                 window.addEventListener('touchstart',function(){
@@ -18,11 +30,13 @@ AFRAME.registerComponent('vidhandler',{
     },
 
     tick: function() {
-        if(!document.querySelector('#marker').object3D.visible && this.playing) {
+        // Control the playing of the video based on presence of marker
+        var isMarkerVisible = document.querySelector(this.markerId).object3D.visible
+        if(!isMarkerVisible && this.playing) {
             this.video.pause();
-            this.playing=false;
+            this.playing = false;
         }
-        else if (document.querySelector('#marker').object3D.visible && !this.playing) {
+        else if (isMarkerVisible && !this.playing) {
             this.video.play();
             this.playing = true;
         }
